@@ -27,6 +27,7 @@ import zuo.biao.apijson.server.Visitor;
  */
 @MethodAccess(
 		POST = {UNKNOWN, ADMIN},
+		PUT = {UNKNOWN},
 		DELETE = {ADMIN}
 		)
 public class User extends BaseModel implements Visitor {

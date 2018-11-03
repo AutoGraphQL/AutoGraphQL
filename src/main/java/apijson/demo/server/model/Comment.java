@@ -15,10 +15,15 @@ limitations under the License.*/
 package apijson.demo.server.model;
 
 import zuo.biao.apijson.MethodAccess;
+import zuo.biao.apijson.RequestRole;
 
 /**评论
  * @author Lemon
  */
-@MethodAccess
+@MethodAccess(
+        POST = {RequestRole.UNKNOWN, RequestRole.LOGIN},
+        PUT = {RequestRole.UNKNOWN, RequestRole.LOGIN},
+        DELETE = {RequestRole.UNKNOWN, RequestRole.LOGIN}
+)
 public class Comment {
 }

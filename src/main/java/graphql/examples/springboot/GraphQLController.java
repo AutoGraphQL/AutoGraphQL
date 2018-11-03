@@ -30,35 +30,52 @@ public class GraphQLController {
         this.objectMapper = objectMapper;
     }
 
-    @RequestMapping(value = "/graphql", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin
-    public Map<String, Object> graphqlGET(@RequestParam("query") String query,
-                                          @RequestParam(value = "operationName", required = false) String operationName,
-                                          @RequestParam("variables") String variablesJson
-    ) throws IOException {
-        Map<String, Object> variables = new LinkedHashMap<>();
-        if (variablesJson != null) {
-            variables = objectMapper.readValue(variablesJson, new TypeReference<Map<String, Object>>() {
-            });
-        }
-        return executeGraphqlQuery(query, operationName, variables);
-    }
 
-
+    /**
+     * @param request
+     * @return
+     * @see
+     * <pre>
+     *     {
+     *       fetch(arg: "{ 'User':{ 'id': 82001 } }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       fetch(arg: "{ 'User':{ 'id': 82001 }, '[]': { 'Comment': { 'userId@': 'User/id' } } }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       fetch(arg: "{ '[]': { 'count': 10, 'page': 1, 'Comment': { '@column': 'id,userId,content' }, 'User':{ 'id@': '/Comment/userId' } } }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       add(arg: "{ 'Comment': { 'userId': 82001, 'momentId': 15, 'content': 'test adding a comment' }, 'tag': 'Comment' }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       remove(arg: "{ 'Comment': { 'id': 1, '@role': 'UNKNOWN' }, 'tag': 'Comment' }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       edit(arg: "{ 'User': { 'id': 82001, 'tag': 'test edit an user' }, 'tag': 'User' }")
+     *     }
+     * </pre>
+     * <pre>
+     *     {
+     *       count(arg: "{ 'User': { 'sex': 1 } }")
+     *     }
+     * </pre>
+     */
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/graphql", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin
-    public Map<String, Object> graphql(@RequestBody Map<String, Object> body) {
-        String query = (String) body.get("query");
-        if (query == null) {
-            query = "";
-        }
-        String operationName = (String) body.get("operationName");
-        Map<String, Object> variables = (Map<String, Object>) body.get("variables");
-        if (variables == null) {
-            variables = new LinkedHashMap<>();
-        }
-        return executeGraphqlQuery(query, operationName, variables);
+    public Map<String, Object> graphql(@RequestBody String request) {
+        return executeGraphqlQuery(request, null, null);
     }
 
     private Map<String, Object> executeGraphqlQuery(String query, String operationName, Map<String, Object> variables) {

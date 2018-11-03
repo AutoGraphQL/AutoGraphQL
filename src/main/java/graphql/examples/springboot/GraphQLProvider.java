@@ -48,7 +48,11 @@ public class GraphQLProvider {
                 .type(newTypeWiring("Query")
                         .dataFetcher("hello", graphQLDataFetchers.getHelloWorldDataFetcher())
                         .dataFetcher("echo", graphQLDataFetchers.getEchoDataFetcher())
-                        .dataFetcher("apijson", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.GET))
+                        .dataFetcher("fetch", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.GET))
+                        .dataFetcher("add", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.POST))
+                        .dataFetcher("remove", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.DELETE))
+                        .dataFetcher("edit", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.PUT))
+                        .dataFetcher("count", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.HEAD))
                         .build())
                 .build();
 

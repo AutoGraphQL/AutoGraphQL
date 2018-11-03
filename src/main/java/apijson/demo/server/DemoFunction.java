@@ -196,8 +196,8 @@ public class DemoFunction extends RemoteFunction {
 	}
 
 	/**判断array是否为空
-	 * @param request
-	 * @param array
+	 * @param rq
+	 * @param toId
 	 * @return
 	 */
 	public int deleteChildComment(@NotNull JSONObject rq, @NotNull String toId) throws Exception {
@@ -439,7 +439,6 @@ public class DemoFunction extends RemoteFunction {
 	//根据键移除值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**移除
 	 ** @param request
-	 * @param array
 	 * @param position 支持直接传数字，例如 getFromArray(array,0) ；或者引用当前对象的值，例如 "@position": 0, "result()": "getFromArray(array,@position)"
 	 * @return
 	 */
@@ -455,7 +454,6 @@ public class DemoFunction extends RemoteFunction {
 	}
 	/**移除
 	 * @param request
-	 * @param object
 	 * @param key
 	 * @return
 	 */

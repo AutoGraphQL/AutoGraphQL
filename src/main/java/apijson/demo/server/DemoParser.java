@@ -34,12 +34,15 @@ public class DemoParser extends AbstractParser {
 
 	public DemoParser() {
 		super();
+		setNoVerifyLogin(true);
 	}
 	public DemoParser(RequestMethod method) {
 		super(method);
+		setNoVerifyLogin(true);
 	}
 	public DemoParser(RequestMethod method, boolean noVerify) {
 		super(method, noVerify);
+		setNoVerifyLogin(true);
 	}
 
 	protected HttpSession session;
