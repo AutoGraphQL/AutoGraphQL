@@ -1,0 +1,6 @@
+
+type Query {
+    hello: String
+    echo(toEcho: String): String
+    apijson(arg: String): String
+}
