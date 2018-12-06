@@ -2,5 +2,9 @@
 type Query {
     hello: String
     echo(toEcho: String): String
-    apijson(arg: String): String
+    fetch(arg: String): String
+    add(arg: String): String
+    remove(arg: String): String
+    edit(arg: String): String
+    count(arg: String): String
 }
