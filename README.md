@@ -1,5 +1,5 @@
 # AutoGraphQL
-Auto provide data for GraphQL with APIJSON and code free.
+Auto provide data for [GraphQL](https://github.com/facebook/graphql) with [APIJSON](https://github.com/TommyLemon/APIJSON) and code free.
 
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them.
 
