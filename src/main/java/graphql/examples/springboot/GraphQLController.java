@@ -1,5 +1,7 @@
 package graphql.examples.springboot;
 
+import apijson.demo.server.DemoParser;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import zuo.biao.apijson.JSON;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -75,7 +78,11 @@ public class GraphQLController {
     @RequestMapping(value = "/graphql", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin
     public Map<String, Object> graphql(@RequestBody String request) {
-        return executeGraphqlQuery(request, null, null);
+        JSONObject req = JSON.parseObject(request);
+        if (req == null) {
+            return DemoParser.newErrorResult(new IllegalArgumentException("请求 JSON 不合法！"));
+        }
+        return executeGraphqlQuery(req.getString("query"), req.getString("operationName"), req.getJSONObject("variables"));
     }
 
     private Map<String, Object> executeGraphqlQuery(String query, String operationName, Map<String, Object> variables) {
