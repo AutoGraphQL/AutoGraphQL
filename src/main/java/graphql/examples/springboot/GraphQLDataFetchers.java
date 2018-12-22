@@ -2,6 +2,7 @@ package graphql.examples.springboot;
 
 import apijson.demo.server.DemoParser;
 import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
 import org.springframework.stereotype.Component;
 import zuo.biao.apijson.RequestMethod;
 
@@ -18,7 +19,12 @@ public class GraphQLDataFetchers {
     }
 
     public DataFetcher getAPIJSONDataFetcher(RequestMethod method) {
-        return environment -> new DemoParser(method).parse((String) environment.getArgument("arg"));
+        return new DataFetcher() {
+            @Override
+            public Object get(DataFetchingEnvironment environment) {
+                return new DemoParser(method).parseResponse((String) environment.getArgument("arg"));
+            }
+        };
     }
 
 
