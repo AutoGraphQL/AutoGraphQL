@@ -19,12 +19,7 @@ public class GraphQLDataFetchers {
     }
 
     public DataFetcher getAPIJSONDataFetcher(RequestMethod method) {
-        return new DataFetcher() {
-            @Override
-            public Object get(DataFetchingEnvironment environment) {
-                return new DemoParser(method).parseResponse((String) environment.getArgument("arg"));
-            }
-        };
+        return environment -> new DemoParser(method).parseResponse((String) environment.getArgument("arg"));
     }
 
 
