@@ -1,5 +1,5 @@
 # AutoGraphQL
-Auto provide data for [GraphQL-Java](https://github.com/graphql-java/graphql-java) with [APIJSON](https://github.com/TommyLemon/APIJSON/blob/master/Document-English.md) and code free.
+Auto provide CRUD functions for [GraphQL-Java](https://github.com/graphql-java/graphql-java) with [APIJSON](https://github.com/TommyLemon/APIJSON/blob/master/Document-English.md) and code free.
 
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them.
 
