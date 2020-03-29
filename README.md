@@ -1,9 +1,9 @@
 # AutoGraphQL
-Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) and code free.
-
-It supplies some automatic Schemas, Types and resolvers so that you don't need to write them.
-
-For example:
+Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) and code free. <br/ >
+ <br/ >
+It supplies some automatic Schemas, Types and resolvers so that you don't need to write them. <br/ >
+ <br/ >
+### Examples
 
 #### 1.Fetch an User
 Request:
@@ -221,9 +221,11 @@ Response:
     }
 }
 ```
-
-### Document
-https://github.com/APIJSON/APIJSON/blob/master/Document-English.md#2-keyswords-in-url-parameters
-
+ <br/ >
+ 
+### Documents
+https://github.com/graphql-java/graphql-java#documentation <br/ >
+https://github.com/APIJSON/APIJSON/blob/master/Document-English.md#2 <br/ >
+ <br/ >
 ### Star to support
-https://github.com/AutoGraphQL/AutoGraphQL
+https://github.com/AutoGraphQL/AutoGraphQL <br/ >
