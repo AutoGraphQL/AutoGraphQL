@@ -227,7 +227,9 @@ Response:
 ### Documents
 https://github.com/graphql-java/graphql-java#documentation <br />
 https://github.com/APIJSON/APIJSON/blob/master/Document-English.md#2 <br />
-<br />
+
+### Related
+[GraphAuto](https://github.com/AutoGraphQL/GraphAuto) An advanced API management tool for GraphQL APIs with machine learning. <br />
+
 ### Star to support
 https://github.com/AutoGraphQL/AutoGraphQL <br />
-<br />
