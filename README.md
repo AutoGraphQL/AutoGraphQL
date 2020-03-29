@@ -1,5 +1,5 @@
 # AutoGraphQL
-Automatically provide CRUD functions for [GraphQL](https://github.com/graphql-java/graphql-java) and code free.
+Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) and code free.
 
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them.
 
