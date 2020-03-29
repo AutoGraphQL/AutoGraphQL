@@ -223,4 +223,7 @@ Response:
 ```
 
 ### Document
-https://github.com/APIJSON/APIJSON/blob/master/Document-English.md
+https://github.com/APIJSON/APIJSON/blob/master/Document-English.md#2-keyswords-in-url-parameters
+
+### Star to support
+https://github.com/AutoGraphQL/AutoGraphQL
