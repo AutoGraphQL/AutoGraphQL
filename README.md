@@ -1,5 +1,5 @@
 # AutoGraphQL
-Automatically provide CRUD functions for [GraphQL-Java](https://github.com/graphql-java/graphql-java) with [APIJSON](https://github.com/TommyLemon/APIJSON/blob/master/Document-English.md) and code free.
+Automatically provide CRUD functions for [GraphQL](https://github.com/graphql-java/graphql-java) and code free.
 
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them.
 
@@ -221,3 +221,6 @@ Response:
     }
 }
 ```
+
+### Document
+https://github.com/APIJSON/APIJSON/blob/master/Document-English.md
