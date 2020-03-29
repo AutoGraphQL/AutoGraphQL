@@ -222,7 +222,7 @@ Response:
     }
 }
 ```
- <br/ >
+<br />
  
 ### Documents
 https://github.com/graphql-java/graphql-java#documentation <br />
