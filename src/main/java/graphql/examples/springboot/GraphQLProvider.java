@@ -81,8 +81,8 @@ public class GraphQLProvider {
     return graphQL;
   }
 
-  public static final GraphQLScalarType ANY = new GraphQLScalarType("Any", "A custom scalar that handles emails", new Coercing() {
-
+  public static final GraphQLScalarType ANY = new GraphQLScalarType("Any", "Value for any type and any format", new Coercing() {
+    
     @Override
     public Object serialize(Object dataFetcherResult) {
       return dataFetcherResult;
@@ -117,6 +117,8 @@ public class GraphQLProvider {
             arr.add(parseLiteral(v));
           }
         }
+
+        return arr;
       }
 
       if (input instanceof ObjectValue) {
