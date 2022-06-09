@@ -261,7 +261,7 @@ http://localhost:8080/?query=mutation%20%7B%0A%20%20remove(arg%3A%20%7B%0A%20%20
 
 <br />
  
-### Documents
+### Document
 https://github.com/graphql-java/graphql-java#documentation <br />
 https://github.com/Tencent/APIJSON/blob/master/Document-English.md#2-keyswords-in-url-parameters <br />
 
