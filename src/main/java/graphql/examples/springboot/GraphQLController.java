@@ -55,22 +55,22 @@ public class GraphQLController {
      * </pre>
      * <pre>
      *     {
+     *       count(arg: "{ 'User': { 'sex': 1 } }")
+     *     }
+     * </pre>
+     * <pre>
+     *     mutation {
      *       add(arg: "{ 'Comment': { 'userId': 82001, 'momentId': 15, 'content': 'test adding a comment' }, 'tag': 'Comment' }")
      *     }
      * </pre>
      * <pre>
-     *     {
+     *     mutation {
      *       remove(arg: "{ 'Comment': { 'id': 1, '@role': 'UNKNOWN' }, 'tag': 'Comment' }")
      *     }
      * </pre>
      * <pre>
-     *     {
+     *     mutation {
      *       edit(arg: "{ 'User': { 'id': 82001, 'tag': 'test edit an user' }, 'tag': 'User' }")
-     *     }
-     * </pre>
-     * <pre>
-     *     {
-     *       count(arg: "{ 'User': { 'sex': 1 } }")
      *     }
      * </pre>
      */
