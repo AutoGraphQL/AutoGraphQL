@@ -21,8 +21,7 @@ public class GraphQLDataFetchers {
     }
 
     public DataFetcher getAPIJSONDataFetcher(RequestMethod method) {
-        return environment -> new DemoParser(method).parseResponse(JSON.toJSONString(environment.getArgument("arg")));
+        return environment -> new DemoParser(method, true).parseResponse(JSON.toJSONString(environment.getArgument("arg")));
     }
-
 
 }
