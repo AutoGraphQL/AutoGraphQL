@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GraphAuto-Advanced GraphQL API tool with machine learning.</title>
+  <meta charset="utf-8" />
+  <meta name="keywords" content="graphql,apijson,api,json,auto,apiauto,document,regression test,machine learning,automation,fastjson"/>
+  <meta name="description" content="GraphAuto-Advanced GraphQL API tool with machine learning."/>
+
+  <!-- Login <<<<<<<<<<<<<<<<<<<< -->
+  <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/login.css">
+  <!-- Login >>>>>>>>>>>>>>>>>>>> -->
+
+  <link href="css/hint.min.css" rel="stylesheet">
+  <!-- <link href="css/diffview.css" rel="stylesheet"> -->
+  <link href="css/loading.css" rel="stylesheet">
+  <link href="css/main.css" rel="stylesheet">
+  <link rel="stylesheet" href="md/css/editormd.preview.css" />
+    <style >
+        input[type=number] {
+            -moz-appearance:textfield;
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+<style type="text/css">
+  .url {
+    height: 100%;
+    border: none;
+    display: flex;
+    align-items: center;
+    flex-grow: 1
+    /* justify-content: center */
+  }
+  .transfer {
+    width: 58px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .send {
+    width: 25%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .statement {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+    font-size: small;
+    z-index: 100;
+    background-color: white;
+    color: #bbb;
+    border-top: #fafafa 1px solid;
+  }
+</style>
+<div id="app" style="background-color: white">
+  <div class="side-top">
+
+    <img src="svg/logo.svg" class="logo-img" style="margin-left: 12px"/>
+    <a class="logo" href="https://github.com/AutoGraphQL/GraphAuto" target="_blank">
+      <span class="on" style="color: #E10098">GraphAuto</span>
+    </a>
+    <a v-show="isDelayShow" >2s</a>
+
+
+    <iframe v-show="User.id == null || User.id <= 0" src="https://ghbtns.com/github-btn.html?user=AutoGraphQL&amp;repo=AutoGraphQL&amp;type=star&amp;count=true&amp;size=small" frameborder="0" scrolling="0" width="160px" height="18px"></iframe>
+
+    <!--只用60%避免拦截左右两侧View的触摸事件-->
+    <div style="width: 40%;height: 100%;left: 30%;display: inline-block;text-align: center;position: fixed;padding-top: 10px">
+      <a style="font-size: large;margin-left: 10px;margin-right: 10px;color: silver" href="https://github.com/AutoGraphQL/AutoGraphQL#document" target="_blank" >Document</a>
+      <a style="font-size: large;margin-left: 10px;margin-right: 10px;color: silver" href="https://github.com/AutoGraphQL" target="_blank" >Organization</a>
+    </div>
+
+    <div class="top-right">
+
+      <a v-show="User.id == null || User.id <= 0" href="https://gitee.com/AutoGraphQL/AutoGraphQL" target="_blank">
+        <img class="ui inline black image" height="24" src="https://gitee.com/logo-black.svg?20171024" width="60">
+      </a>
+
+      <a v-show="User.id != null && User.id > 0" href="javascript:void(0)" @click="logout(true)">
+        Logout
+      </a>
+
+      <a v-show="User.id == null || User.id <= 0" href="javascript:void(0)" @click="showLogin(true, true)">
+        Login
+      </a>
+
+      <span class="pop-btn">
+                <a href="javascript:void(0)" >
+                   {{ User.id != null && User.id > 0 ? User.name : 'Settings' }}
+                </a>
+                <ul class="themes pop" style="z-index: 200;padding: 0px;margin-top: 10px;width: 300px">
+                  <a style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 0)">Database type: {{ database || 'Click to set' }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 1)">Database Schema: {{ schema || 'Click to set' }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 2)">Generate code(request, response): {{ language || 'Click to set' }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(! isDelegateEnabled, 9)">Server proxy: {{ isDelegateEnabled ? 'On, click to close' : 'Off, click to open' }}</a>
+                  <a v-show="User.id == null || User.id <= 0" style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 7)">Use request types: {{ types == null || types.length <= 0 ? 'Click to set' : types.join() }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(StringUtil.isEmpty(host, true), 3)">{{ StringUtil.isEmpty(host, true) ? 'Hide(Freeze)URL Host: can divide with blank' : 'Show(Edit)URL Host: \n' + host }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%;display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;" href="javascript:void(0)" @click="showConfig(! isRandomShow, 5)">{{ isRandomShow ? 'Hide(Freeze)Order & Random Test' : 'Show(Edit)Order & Random Test' }}</a>
+                  <a style="border-bottom: #DDD 1px solid;width: 100%;display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;" href="javascript:void(0)" @click="showConfig(! isHeaderShow, 4)">{{ isHeaderShow ? 'Hide(Freeze) Request Header' : 'Show(Edit) Request Header' }}</a>
+                  <a v-show="User.id == null || User.id <= 0" style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 6)">Platform server URL: {{ server || 'Click to set' }}</a>
+                  <a v-show="User.id != null && User.id > 0" style="border-bottom: #DDD 1px solid;width: 100%" href="javascript:void(0)" @click="showConfig(true, 8)">Import Swagger document: {{ swagger || 'Click to set' }}</a>
+                </ul>
+      </span>
+
+
+      <!-- 部分头像加载不出，或者Show为开源中国LOGO -->
+      <!--<img v-show="User.id != null && User.id > 0" href="javascript:void(0)" @click="logout()" :src="User.head"-->
+      <!--style="width: 100%; height: 100%; padding: 10%;"/>-->
+
+    </div>
+  </div>
+
+  <!--<div :class="'side-left side-view-' + baseview">-->
+  <div class="side-left">
+    <div v-show="! isTestCaseShow" class="left-bar" >
+      <button class="transfer" id="vTransfer" @click="transfer()">' / "</button>
+      <button v-show="types != null && types.length > 1" class="transfer" id="vType" @click="changeType()">{{ getTypeName(type) }}</button>
+      <div style="height: 100%;display: flex;flex-grow: 1">
+        <input class="url" id="vUrlComment" type="text" style="width: 100%; position: absolute; z-index: -100; color: darkseagreen;background: #0000;"  />
+        <input class="url" id="vUrl" type="text" @keyup="doOnKeyUp(event)" placeholder="Input url here" style="z-index: 0; background: #0000;" />
+      </div>
+      <button class="send" id="vSend" @click="send(false)">Send</button>
+    </div>
+    <div v-show="isTestCaseShow" class="left-bar">
+      <!--<svg class="icon" style="margin-left: 10px">-->
+      <!--<use xlink:href="svg/icon.svg#share"></use>-->
+      <!--</svg>-->
+
+      <a style="display: flex;flex-grow: 1;font-size: medium;color: black" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="showTestCase(true, ! isLocalShow)">测试用例:{{ (isLocalShow ? '本地历史(' : '远程共享(') + (testCases == null ? 0 : testCases.length) + ')' }}</a>
+
+      <a v-show="! isLocalShow" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="enableCross(! isCrossEnabled)">{{ crossProcess }}</a>
+      <a v-show="! isLocalShow" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="enableML(! isMLEnabled)">{{ testProcess }}</a>
+      <a v-show="! isLocalShow" class="hint--top @cli-tool" data-hint="Regression test" href="javascript:void(0)" @click="test(false, isCrossEnabled ? -1 : currentAccountIndex)">
+        <img class="icon" src="img/refresh.png"/>
+      </a>
+      <a v-show="isLocalShow" class="hint--top @cli-tool" data-hint="清空" href="javascript:void(0)" @click="clearLocal()">
+        <svg class="icon" >
+          <use xlink:href="svg/icon.svg#trash"></use>
+        </svg>
+      </a>
+    </div>
+      <div v-show="isTestCaseShow" style="bottom: 10px; right: 13px;position: absolute; background-color: white; z-index: 100">
+          <a >Search</a>
+          <input id="vTestCaseSearch" :value="testCaseSearch" style="width: 90px;text-align: center" @keyup="doOnKeyUp(event, true, true)" />
+          <button @click="pageDown(true)">Prev</button>
+          <input id="vTestCasePage" :value="testCasePage" style="width: 30px;text-align: center" @keyup="doOnKeyUp(event, true, true)" type="number" />
+          <button @click="pageUp(true)">Next</button>
+          <input id="vTestCaseCount" :value="testCaseCount" style="width: 30px;text-align: center" @keyup="doOnKeyUp(event, true, true)" type="number" />
+          <a >per page</a>
+      </div>
+    <div class="left-panel">
+      <ul v-show="isTestCaseShow" class="historys" style="width: 100%;height: 100%;overflow: hidden;overflow-y: scroll;padding-bottom: 50px">
+        <li v-for="(item, index) in testCases" >
+            <div style="display: inline-table">
+          <button v-show="types != null && types.length > 1" style="width: 48px;margin-right: 6px;padding: 0px;position: relative" id="vDocType" @click="restoreRemoteAndTest(item)">{{ getTypeName(item.Document.type) }}</button>
+          <a class="hint--rounded hint--no-animate" ref="testCaseTexts" @mouseover="setRequestHint(index, item)" href="javascript:void(0)" @click="restoreRemote(item)" > {{(item.Document.version > 0 ? 'V' + item.Document.version : 'V*') + ' ' + item.Document.name  + '    ' + item.Document.url}}</a>
+          <div :style="{ background: item.compareColor }" v-show="item.compareType != null" style="position: absolute;top: 8px;right: 36px;display: inline-block;">
+            <button class="hint--left" ref="testResultButtons" @mouseover="setTestHint(index, item)" v-show="item.compareType != null" @click="handleTest(false, index, item)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-前' : '-后') }}</button>
+            <svg class="icon" style="position: relative;margin-left: 10px" @click="downloadTest(index, item)">
+              <use xlink:href="svg/icon.svg#export-txt"></use>
+            </svg>
+            <button v-show="(item.compareType != -2 && item.compareType != 0) || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item)">{{ item.showType == 'before' ? '错的，撤回' : '对的，纠正' }}</button>
+            <button v-show="(item.compareType == -2 || item.compareType == 0) && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>对的，纠正</button>
+          </div>
+          <svg v-show="isLocalShow || (item.Document != null && item.Document.userId == User.id)" class="icon" style="margin-right: 8px" @click="remove(item, index, true)">
+            <use xlink:href="svg/icon.svg#trash"></use>
+          </svg>
+            </div>
+        </li>
+      </ul>
+      <div v-show="! isTestCaseShow" style="width: 100%;height: 100%;" >
+
+        <div style="width: 100%;height: 100%;position: absolute;display: flex;flex-grow: 1" >
+          <textarea id="vComment" style="width: 100%; height: 100%; position: absolute; z-index: 0; color: darkseagreen; background-color: white;" wrap="off" disabled>
+          </textarea>
+          <textarea id="vInput" @keyup="onChange(true)" style="width: 100%;height: 100%; position: absolute;
+           z-index: 100; background: #0000;" wrap="off" placeholder="Input common JSON or GraphQL variables">
+{
+  "arg": {
+    "User": {
+      "id": 82001
+    },
+    "[]": {
+      "Comment": {
+        "userId@": "User/id"
+      }
+    }
+  }
+}
+          </textarea>
+        </div>
+
+          <textarea v-show="type == 'GQL'" id="vGraphQLInput" style="position: absolute; right: 0px;
+          display: inline-flex; width: 45%; min-width: 240px; height: 100%;
+          border-left: #DDD 1px solid; z-index: 100;" wrap="off" placeholder="Input GraphQL query or mutation">
+query ($arg: Any) {
+  fetch(arg: $arg)
+}</textarea>
+
+          <div style="width: 100%; height: auto; position: absolute;bottom: 0px; z-index: 100; background: white;" >
+
+        <div v-show="isRandomShow" style="width: 100%; height: 330px; position: relative;" >
+            <div class="left-bar" style="border-top: #DDD 1px solid; position: relative">
+            <a style="display: flex;flex-grow: 1;padding-left: 10px;padding-right: 2px;font-size: medium;color: black" >{{ isRandomListShow || StringUtil.isEmpty(randomTestTitle) ? 'Order & Random Test' : randomTestTitle }}
+                <a style="padding-right: 10px;padding-top: 2px">
+                    {{ testRandomProcess }}
+                </a>
+                <a v-show="isRandomListShow != true && (currentRemoteItem || {}).Document != null" style="padding-right: 10px;padding-top: 2px" href="javascript:void(0)" @click="showRandomList(true, (currentRemoteItem || {}).Document)">
+                    Show parent list
+                </a>
+            </a>
+                <a v-show="(currentRemoteItem || {}).Document != null" class="hint--top @cli-tool" data-hint="添加" style="font-size:xx-large; margin-bottom: 2px; color: black;"
+                   href="javascript:void(0)" @click="if(isRandomListShow) { randomTestTitle = null; isRandomListShow = false;  } else { showExport(true, true, true) }"> + </a>
+                <a v-show="false" href="javascript:void(0)" style="font-size: small;" class="hint--top"  data-hint="共享"  @click="showExport(true, true)">
+                    <svg class="icon">
+                        <use xlink:href="svg/icon.svg#share"></use>
+                    </svg>
+                </a>
+              <a class="hint--top @cli-tool" style="font-size: small;" data-hint="Test" href="javascript:void(0)" @click="testRandom(true)">
+                  <img class="icon" src="img/refresh.png"/>
+              </a>
+              <a class="hint--top @cli-tool" data-hint="Hide" style="float: right;padding: 8px;height: 100%"  href="javascript:void(0)" @click="showConfig(false, 5)">
+              <svg class="icon close-icon"  >
+                <use xlink:href="svg/icon.svg#close"></use>
+              </svg>
+              </a>
+          </div>
+            <ul v-show="isRandomListShow" class="historys" style="width: 100%;height: 100%;overflow: hidden;overflow-y: scroll;padding-bottom: 50px">
+                <li style="width: 100%" v-for="(item, index) in randoms" >
+                    <a class="hint--rounded hint--no-animate" ref="randomTexts" @mouseover="setRequestHint(index, item, true)" href="javascript:void(0)" @click="restoreRandom(item)" > {{ (item.Random.count || 1) + '次 - ' + item.Random.name }}</a>
+                    <div :style="{ background: item.compareColor }" v-show="item.compareType != null" style="position: absolute;top: 8px;right: 36px;display: inline-block;">
+                        <button class="hint--left" ref="testRandomResultButtons" @mouseover="setTestHint(index, item, true)" v-show="item.compareType != null" @click="handleTest(false, index, item, true)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-Before' : '-After') }}</button>
+                        <svg class="icon" style="position: relative;margin-left: 10px" @click="downloadTest(index, item, true)">
+                            <use xlink:href="svg/icon.svg#export-txt"></use>
+                        </svg>
+                        <button v-show="item.compareType != 0 || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item, true)">{{ item.showType == 'before' ? '错的，撤回' : '对的，纠正' }}</button>
+                        <button v-show="item.compareType == 0 && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>对的，纠正</button>
+                    </div>
+                    <svg v-show="item.Random != null && item.Random.userId == User.id" class="icon" style="margin-right: 8px" @click="remove(item, index, true, true)">
+                        <use xlink:href="svg/icon.svg#trash"></use>
+                    </svg>
+                </li>
+            </ul>
+          <textarea id="vRandom" style="width: 100%;height: 100%;" wrap="off"
+                    placeholder="# Document:
+RANDOM_DB  // randomly get value from database tables
+RANDOM_DB_IN  // randomly get value from database tables
+RANDOM_INT(min:Integer?, max:Integer?)  // randomly generate int value from min to max
+RANDOM_NUM(min:Number?, max:Number?, precision:Integer?)  // randomly generate float value from min to max
+RANDOM_STR(minLength:Integer?, maxLength:Integer?, regexp:String?)  // randomly generate string
+RANDOM_IN(val0:Any, val1:Any ...)  // randomly get value from options
+ORDER_DB  // orderly get value from database tables
+ORDER_INT(min:Integer?, max:Integer?)  // orderly generate int value from min to max
+ORDER_IN(val0:Any, val1:Any ...)  // orderly get value from options
+# Examples:
+arg/User/id : RANDOM_DB  // randomly get value from database tables
+arg/[]/page : ORDER_INT(0, 10)  // orderly generate int value
+arg/[]/count : Math.round(20*Math.random())  // customize with JavaScript
+">
+arg/User/id: RANDOM_INT(82001, 82020)
+arg/[]/count: ORDER_IN(5, 10, 's', false, [], {})
+arg/[]/page: Math.round(5*Math.random())
+arg/@explain: RANDOM_IN(true, false)
+  //  arg/[]/Comment/toId: RANDOM_DB()
+
+  // 2 blanks before // for comments; clear to show rules.</textarea>
+        </div>
+
+
+              <div v-show="isHeaderShow" style="width: 100%; height: 150px; position: relative;" >
+                  <div class="left-bar" style="border-top: #DDD 1px solid; position: relative">
+                      <a style="padding-left: 10px;padding-right: 2px;font-size: medium;color: black" > Request Header<a style="display: flex;flex-grow: 1;padding-right: 10px;padding-top: 2px"> (key : value for each line)</a></a>
+                      <a class="hint--top @cli-tool" data-hint="Hide" style="float: right;padding: 8px;height: 100%"  href="javascript:void(0)" @click="showConfig(false, 4)">
+                          <svg class="icon close-icon"  >
+                              <use xlink:href="svg/icon.svg#close"></use>
+                          </svg>
+                      </a>
+                  </div>
+                  <textarea id="vHeader" @keyup="onChange(true)" style="width: 100%;height: 100%;" wrap="off" placeholder="Authorization : Basic YWRtaW46YWRtaW4=  // example token"></textarea>
+              </div>
+
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="splitx" ></div>
+
+  <div class="side-right">
+    <div class="right-inner">
+      <div class="right-bar">
+        <div class="pull-left">
+
+          <a v-show="! isExpand" href="javascript:void(0)" class="hint--top"  data-hint="Expand all"  @click="expandAll()">
+            <svg class="icon" >
+              <use xlink:href="svg/icon.svg#expand"></use>
+            </svg>
+          </a>
+
+          <a v-show="isExpand" href="javascript:void(0)" class="hint--top"  data-hint="Collapse all" @click="collapseAll()">
+            <svg class="icon"  >
+              <use xlink:href="svg/icon.svg#collapse"></use>
+            </svg>
+          </a>
+
+
+          <span class="pop-btn" > <!--v-show="historys.length > 0">-->
+              <a class="hint--top save-tool"  data-hint="Save locally" href="javascript:void(0)" @click="showSave(true)">
+                <svg class="icon">
+                  <use xlink:href="svg/icon.svg#save"></use>
+                </svg>
+              </a>
+              <ul class="historys pop" style="width: 240px">
+                  <li v-for="(his, index) in historys">
+                    <a href="javascript:void(0)" @click="restore(his)"  > {{his.name}}</a>
+
+                    <svg class="icon" @click="remove(his, index, false)">
+                      <use xlink:href="svg/icon.svg#trash"></use>
+                    </svg>
+                  </li>
+              </ul>
+          </span>
+
+          <a v-show="isTestCaseShow" class="hint--top" data-hint="Hide test cases" href="javascript:void(0)">
+            <svg class="icon" @click="showTestCase(false, isLocalShow)">
+              <use xlink:href="svg/icon.svg#record"></use>
+            </svg>
+          </a>
+          <a v-show="! isTestCaseShow" class="hint--top" data-hint="Show test cases" href="javascript:void(0)">
+            <svg class="icon" @click="showTestCase(true, isLocalShow)">
+              <use xlink:href="svg/icon.svg#record"></use>
+            </svg>
+          </a>
+
+        </div>
+
+        <div class="pull-center" >
+          <ul style="width: 100%; padding-left: 18px;padding-right: 18px;" >
+            <li style="width: 100%; display: inline-block;text-align: center;">
+              <button style="background-color: #DDD;margin: 0px;outline: none;border: #DDD 1px solid;" href="javascript:void(0)" @click="removeAccountTab()"> - </button>
+              <button style="outline: none;border: #DDD 1px solid;" :style="{backgroundColor: currentAccountIndex == index ? 'transparent' : '#DDD', color: item.isLoggedIn ? 'red' : 'black'}" v-for="(item, index) in accounts" @click="onClickAccount(index, item)">{{ item.name }}</button>
+              <button style="background-color: #DDD;margin: 0px;outline: none;border: #DDD 1px solid;" href="javascript:void(0)" @click="addAccountTab()"> + </button>
+            </li>
+          </ul>
+
+        </div>
+
+        <div class="pull-right">
+
+          <a href="javascript:void(0)" class="hint--top"  data-hint="Download"   @click="showExport(true, false)">
+            <svg class="icon">
+              <use xlink:href="svg/icon.svg#export-txt"></use>
+            </svg>
+          </a>
+
+          <a href="javascript:void(0)" class="hint--top"  data-hint="Upload"   @click="showExport(true, true)">
+            <svg class="icon">
+              <use xlink:href="svg/icon.svg#share"></use>
+            </svg>
+          </a>
+
+          <span class="pop-btn">
+                <a class="hint--top"  data-hint="Skins" href="javascript:void(0)" @click="isThemeShow = true">
+                  <svg class="icon">
+                    <use xlink:href="svg/icon.svg#theme"></use>
+                  </svg>
+                </a>
+                <div class="themes pop">
+                  <div :class="'theme-item ' + (index === checkedTheme)" v-for="(theme, index) in themes" @click="switchTheme(index)">
+                    <span class="theme-color" v-for="color in theme" :style="{backgroundColor: color}" ></span>
+                  </div>
+                </div>
+              </span>
+        </div>
+
+      </div>
+
+
+      <div class="right-main"  v-show="baseview == 'formater' && view != 'error'" >
+
+        <!--正常JSON格式化视图-->
+        <div style="position: relative" class="view-code"  v-show="view == 'code'">
+          <vue-outer :jsondata="jsonhtml" isend="true" :theme="theme"></vue-outer>
+        </div>
+
+        <!--空视图-->
+        <div class="view-code"  v-show="view == 'empty'">
+        </div>
+
+        <!--压缩视图-->
+        <textarea v-show="view == 'compress'">{{compressStr}}</textarea>
+
+        <textarea id="vOutput" v-show="view == 'output'"></textarea>
+
+        <div class="right-main" id="vMarkdown" v-show="view == 'markdown'"></div>
+        <div style="bottom: 0px; right: 10px;position: absolute; background-color: white;">
+            <a >Search</a>
+            <input id="vSearch" :value="search" style="width: 90px;text-align: center" @keyup="doOnKeyUp(event, true)" />
+            <button @click="pageDown()">Prev</button>
+            <input id="vPage" :value="page" style="width: 30px;text-align: center" @keyup="doOnKeyUp(event, true)" type="number" />
+            <button @click="pageUp()">Next</button>
+            <input id="vCount" :value="count" style="width: 30px;text-align: center" @keyup="doOnKeyUp(event, true)" type="number" />
+            <a >per page</a>
+        </div>
+      </div>
+
+
+      <!--格式化错误视图-->
+      <div class="view-error" v-show="view == 'error'">
+        <pre v-cloak>{{error.msg}}</pre>
+      </div>
+
+      <!--diff视图-->
+      <!-- <div id="diffoutput" v-show="baseview == 'diff' && view != 'error'">
+
+      </div> -->
+
+    </div>
+  </div>
+
+  <!--<div class="statement">-->
+  <!--Copyright ©2017 APIJSON.cn All right reserved.-->
+  <!--<a href="http://www.miitbeian.gov.cn/" target="_blank">-->
+  <!--<span >粤ICP备18005508号-1.</span>-->
+  <!--</a>-->
+  <!--本网站部分工具是站长整合网上已有工具、开源包等，并全部遵循原有协议发布，著作权归属原作者或是团队。-->
+  <!--</div>-->
+
+  <!--弹出保存框-->
+  <div class="save-box" v-show="isSaveShow">
+    <svg class="icon close-icon" @click="showSave(false)">
+      <use xlink:href="svg/icon.svg#close"></use>
+    </svg>
+
+    <input type="text" placeholder="Input name" v-model="history.name" />
+    <button   @click="save()" >Save</button>
+  </div>
+
+  <!--弹出下载文本框-->
+  <div class="save-box" v-show="isExportShow">
+    <svg class="icon close-icon" @click="showExport(false, isExportRemote)">
+      <use xlink:href="svg/icon.svg#close"></use>
+    </svg>
+
+    <input type="text" placeholder="Input name" v-model="exTxt.name" />
+    <button @click="exportTxt()">{{isExportRemote ? 'Upload' : 'Download'}}</button>
+  </div>
+
+  <!--弹出设置文本框-->
+  <div class="save-box" v-show="isConfigShow">
+    <svg class="icon close-icon" @click="showConfig(false)">
+      <use xlink:href="svg/icon.svg#close"></use>
+    </svg>
+
+    <input type="text" placeholder="Input name" v-model="exTxt.name" />
+    <button @click="saveConfig()">{{ exTxt.button || 'Change' }}</button>
+  </div>
+
+  <!--弹出删除文本框-->
+  <div class="save-box" v-show="isDeleteShow">
+    <svg class="icon close-icon" @click="showDelete(false, {})">
+      <use xlink:href="svg/icon.svg#close"></use>
+    </svg>
+
+    <input type="text" placeholder="Input name" v-model="exTxt.name" />
+    <button @click="deleteDoc()">Delete</button>
+  </div>
+
+
+  <!-- Login <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
+  <div class="my-login-page" v-show="isLoginShow">
+    <section class="h-100">
+      <div class="container h-100">
+        <div class="row justify-content-md-center h-100">
+          <div class="card-wrapper">
+            <div class="card fat" >
+              <div class="card-body">
+                <div class="card-title">
+                  <a style="font-size: x-large;color: black">{{ ( loginType == "login" ? "Login" : (loginType == "register" ? "Register" : "Reset password") ) + (isAdminOperation ? "(Admin)" : "(User)")}}</a>
+                  <a style="float: right;margin-top: 8px" href="javascript:void(0)" @click="showLogin(false)">
+                    <svg class="icon close-icon"  >
+                      <use xlink:href="svg/icon.svg#close"></use>
+                    </svg>
+                  </a>
+                </div>
+                <form method="POST">
+
+                  <div class="form-group">
+                    <label for="vAccount">Account</label>
+
+                    <input id="vAccount" type="text" class="form-control" name="account" value="13000082001" required autofocus />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="vPassword">Password
+                      <a class="float-right" v-show="loginType != 'register'" href="javascript:void(0)" @click="loginType = loginType == 'login' ? 'forget' : 'login'">
+                        {{ loginType == "login" ? "Forget password?" : "Remember password?" }}
+                      </a>
+                    </label>
+                    <input id="vPassword" type="password" class="form-control" name="password" value="123456" required data-eye />
+                  </div>
+
+                  <div class="form-group" v-show="loginType != 'login'">
+                    <label for="vVerify">Auth code
+                      <a class="float-right" href="javascript:void(0)" @click="getVerify(isAdminOperation)">Get</a>
+                    </label>
+
+                    <input id="vVerify" type="tel" class="form-control" name="verify" required />
+                  </div>
+
+                  <div class="form-group" v-show="loginType == 'login'">
+                    <label >
+                      <input id="vRemember" type="checkbox" name="remember" @change="setRememberLogin(vRemember.checked)"/> Remember login
+                    </label>
+                  </div>
+
+                  <div class="form-group" style="margin-top: 30px">
+                    <button class="btn btn-primary btn-block" @click="confirm(isAdminOperation)">
+                      OK
+                    </button>
+                  </div>
+
+                  <div class="margin-top20 text-center" v-show="loginType != 'forget'">
+                    {{ loginType == "login" ? "No account?" : "Have account?" }}
+                    <a href="javascript:void(0)" @click="loginType = loginType == 'login' ? 'register' : 'login'">
+                      {{ loginType == "login" ? "Register" : "Login" }}
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Login >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
+
+
+</div>
+
+<!--用于移动的时候遮住文本域 避免被选中-->
+<div class="widnow-cover">
+</div>
+
+
+
+
+
+
+<!--最外层根结构-->
+<script type="text/x-template" id="outer-template">
+  <ul class="json-item">
+    <vue-val  :val="jsondata" :isend="isend" :theme="theme"></vue-val>
+  </ul>
+</script>
+
+<!--内层每个键值对-->
+<script type="text/x-template" id="item-template">
+  <ul class="json-item">
+    <vue-val :field="key" :theme="theme" :val="val" :isend="index == objLength(jsondata) - 1"
+             v-show="onRenderJSONItem(val, key, jsondata._$_this_$_)"
+             v-for="(val, key, index) in jsondata"></vue-val>
+  </ul>
+</script>
+
+<!--key value 最终的渲染方式-->
+<script type="text/x-template" id="val-template">
+  <div class="keyval">
+    <template v-if="!isObjectArr(val)">
+      <span class="key hint--top-right hint--rounded hint--no-animate" v-show="field" :style="{color: theme.key}"
+            ref="responseKey" @mouseover="setResponseHint(val, field, $event)">"{{field}}": </span>
+
+      <span  :class="'val val-' + getTyp(val, field)" :style="{color: theme[getTyp(val)]}">
+            <span v-if="!isaLink(val)">{{formatVal(val)}}</span>
+            <a v-if="isaLink(val)" :href="val" target="_blank" class="json-link" :style="{color: theme['link-link']}">{{formatVal(val)}}</a>
+            <span v-if="!isend">,</span>
+          </span>
+    </template>
+
+
+    <!--key + 展开折叠ICON-->
+    <template v-if="isObjectArr(val)">
+      <span class="key hint--right hint--rounded hint--no-animate" :style="{color: theme.key}" v-show="field"
+            ref="responseKey" @mouseover="setResponseHint(val, field, $event)">"{{field}}": </span>
+      <vue-expand></vue-expand>
+    </template>
+
+
+    <!--值为对象时-->
+    <template v-if="getTyp(val) == 'Object'">
+          <span class="expand-view">
+            <span>{</span>
+            <vue-item :jsondata="val" :theme="theme"></vue-item>
+            <div class="brace-end">}<span v-if="!isend">,</span></div>
+          </span>
+
+      <span class="fold-view">{{getTyp(val)}}{<label class="ex-alia" @click="expand($event)">{{objLength(val)}}</label>}<span v-if="!isend">,</span></span>
+    </template>
+
+
+    <!--值为数组时-->
+    <template v-if="getTyp(val) == 'Array'">
+          <span class="expand-view">
+            <span>[</span>
+            <span class="val">
+              <vue-outer :jsondata="sub" v-for="(sub, index) in val" :isend="index == val.length - 1" :theme="theme"></vue-outer>
+            </span>
+            <div class="brace-end">]<span v-if="!isend">,</span></div>
+          </span>
+
+      <span class="fold-view">{{getTyp(val)}}[<label class="arrlen ex-alia" @click="expand($event)">{{val.length}}</label>]<span v-if="!isend">,</span></span>
+
+    </template>
+  </div>
+</script>
+
+<!--展开 折叠的 UI 组件-->
+<script type="text/x-template" id="expand-template">
+  <span class="expand-wraper">
+        <svg class="icon icon-square icon-square-min" @click="fold($event)" title="折叠">
+          <use xlink:href="svg/icon.svg#minus-square"></use>
+        </svg>
+
+        <svg class="icon icon-square icon-square-plus" @click="expand($event)" title="展开">
+          <use xlink:href="svg/icon.svg#plus-square"></use>
+        </svg>
+      </span>
+</script>
+
+
+
+
+<script src="js/vue.min.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/jsonlint.js"></script>
+<script src="js/parse.js"></script>
+<script src="js/editor.js"></script>
+<!-- <script src="js/diffview.js"></script> -->
+<script src="js/localforage.min.js"></script>
+<script src="js/FileSaver.js"></script>
+<script src="js/uuid.js"></script>
+<script src="js/clipboard.min.js"></script>
+<script src="js/helper.js"></script>
+
+<!-- 必须在main.js前 TODO 可能有冲突，代码写入vue文件？ <<<<<<<<<<<<<<<< -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript" language="JavaScript" charset="UTF-8" src="apijson/StringUtil.js" ></script>
+<script type="text/javascript" language="JavaScript" charset="UTF-8" src="apijson/JSONObject.js" ></script>
+<script type="text/javascript" language="JavaScript" charset="UTF-8" src="apijson/JSONRequest.js" ></script>
+<script type="text/javascript" language="JavaScript" charset="UTF-8" src="apijson/JSONResponse.js" ></script>
+<script type="text/javascript" language="JavaScript" charset="UTF-8" src="apijson/CodeUtil.js" ></script>
+<!-- 必须在main.js前 TODO 可能有冲突，代码写入vue文件？ >>>>>>>>>>>>>>>> -->
+
+
+<script src="js/main.js"></script>
+
+<script type="text/javascript" language="JavaScript" charset="UTF-8" >
+  //TODO 保留，用v-model绑定到App.data会报错，各种undefined
+  var vUrl = document.getElementById("vUrl");
+  var vUrlComment = document.getElementById("vUrlComment");
+  var vTransfer = document.getElementById("vTransfer");
+  var vType = document.getElementById("vType");
+  var vSend = document.getElementById("vSend");
+
+  var vInput = document.getElementById("vInput");
+  var vComment = document.getElementById("vComment");
+  var vGraphQLInput = document.getElementById("vGraphQLInput");
+  var vHeader = document.getElementById("vHeader");
+  var vRandom = document.getElementById("vRandom");
+  var vOutput = document.getElementById("vOutput");
+
+  var vAccount = document.getElementById("vAccount");
+  var vPassword = document.getElementById("vPassword");
+  var vVerify = document.getElementById("vVerify");
+  var vRemember = document.getElementById("vRemember");
+
+  vUrl.value = new String(URL_BASE + '/graphql'); //main.js里访问不到，可能是script引用顺序问题
+
+  var vMarkdown = document.getElementById('vMarkdown');
+  var vPage = document.getElementById('vPage');
+  var vCount = document.getElementById('vCount');
+  var vTestCasePage = document.getElementById('vTestCasePage');
+  var vTestCaseCount = document.getElementById('vTestCaseCount');
+
+
+  function onScrollChanged() {
+    $(vComment).scrollLeft(vInput.scrollLeft);
+    $(vComment).scrollTop(vInput.scrollTop);
+  }
+
+  //vComment跟随vInput滚动，避免JSON重叠"露馅"
+  $(vInput).on('scroll', onScrollChanged);
+
+
+  function onURLScrollChanged() {
+    $(vUrlComment).scrollLeft(vUrl.scrollLeft);
+  }
+
+  //vURLComment跟随vUrl滚动，避免JSON重叠"露馅"
+  $(vUrl).on('scroll', onURLScrollChanged);
+
+
+
+  function markdownToHTML(md) {
+    $(vMarkdown.innerHTML).removeAttr()
+    $(vMarkdown.innerHTML).removeData()
+    $(vMarkdown.innerHTML).empty()
+    vMarkdown.innerHTML = '';
+    editormd.markdownToHTML("vMarkdown", {
+      markdown        : md ,//+ "\r\n" + $("#append-test").text(),
+      //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+      htmlDecode      : "style,script,iframe",  // you can filter tags decode
+      //toc             : false,
+      tocm            : true,    // Using [TOCM]
+      //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+      //gfm             : false,
+      tocDropdown     : true,
+      // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+      taskList        : true,
+      tex             : true,  // 默认不解析
+      flowChart       : true,  // 默认不解析
+      sequenceDiagram : true,  // 默认不解析
+    });
+  }
+</script>
+<script src="md/lib/jquery.min.js"></script>
+<script src="md/lib/marked.min.js"></script>
+<script src="md/lib/prettify.min.js"></script>
+
+<script src="md/lib/raphael.min.js"></script>
+<script src="md/lib/underscore.min.js"></script>
+<script src="md/lib/sequence-diagram.min.js"></script>
+<script src="md/lib/flowchart.min.js"></script>
+<script src="md/lib/jquery.flowchart.min.js"></script>
+
+<script src="md/editormd.js"></script>
+
+
+<!-- 百度统计 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<  -->
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    try {
+      var hm = document.createElement("script");
+//      hm.src = "https://hm.baidu.com/hm.js?b8fc421d7c0dc354c6c8fb5a2c4f7729"; //cn
+      hm.src = "https://hm.baidu.com/hm.js?965ec968d2d53b729b90efc7ffb3ead2"; //org
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    } catch (e) {
+      console.log('BaiduStatistics: catch\n' + e.message)
+    }
+  })();
+</script>
+<!-- 百度统计 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  -->
+
+</body>
+</html>

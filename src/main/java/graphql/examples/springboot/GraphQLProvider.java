@@ -82,7 +82,7 @@ public class GraphQLProvider {
   }
 
   public static final GraphQLScalarType ANY = new GraphQLScalarType("Any", "Value for any type and any format", new Coercing() {
-    
+
     @Override
     public Object serialize(Object dataFetcherResult) {
       return dataFetcherResult;
