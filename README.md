@@ -267,6 +267,8 @@ https://github.com/Tencent/APIJSON/blob/master/Document-English.md#2-keyswords-i
 
 ### Related
 [GraphAuto](https://github.com/AutoGraphQL/GraphAuto) An advanced API management tool for GraphQL APIs with machine learning. <br />
+![image](https://user-images.githubusercontent.com/5738175/172935532-aba3c5a4-0828-45f5-83d9-2735657002ce.png)
+
 
 ### Star to support
 https://github.com/AutoGraphQL/AutoGraphQL <br />
