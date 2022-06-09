@@ -2,9 +2,11 @@
 type Query {
     hello: String
     echo(toEcho: String): String
-    fetch(arg: String): String
+    fetch(arg: Any): Any
     add(arg: String): String
     remove(arg: String): String
     edit(arg: String): String
     count(arg: String): String
 }
+
+scalar Any
