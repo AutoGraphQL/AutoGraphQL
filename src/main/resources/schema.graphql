@@ -1,12 +1,14 @@
+scalar Any
 
 type Query {
     hello: String
     echo(toEcho: String): String
     fetch(arg: Any): Any
-    add(arg: String): String
-    remove(arg: String): String
-    edit(arg: String): String
-    count(arg: String): String
+    count(arg: Any): Any
 }
 
-scalar Any
+type Mutation {
+    add(arg: Any): Any
+    remove(arg: Any): Any
+    edit(arg: Any): Any
+}
