@@ -65,10 +65,12 @@ public class GraphQLProvider {
         .dataFetcher("hello", graphQLDataFetchers.getHelloWorldDataFetcher())
         .dataFetcher("echo", graphQLDataFetchers.getEchoDataFetcher())
         .dataFetcher("fetch", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.GET))
-        .dataFetcher("add", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.POST))
-        .dataFetcher("remove", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.DELETE))
-        .dataFetcher("edit", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.PUT))
         .dataFetcher("count", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.HEAD))
+        .build())
+      .type(newTypeWiring("Mutation")
+        .dataFetcher("add", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.POST))
+        .dataFetcher("edit", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.PUT))
+        .dataFetcher("remove", graphQLDataFetchers.getAPIJSONDataFetcher(RequestMethod.DELETE))
         .build())
       .build();
 
@@ -81,17 +83,16 @@ public class GraphQLProvider {
 
   public static final GraphQLScalarType ANY = new GraphQLScalarType("Any", "A custom scalar that handles emails", new Coercing() {
 
-    // Accept one Java Object and convert it to the output form of the scalar
     @Override
     public Object serialize(Object dataFetcherResult) {
       return dataFetcherResult;
     }
-    // Accept the variable input object and convert it to Java Runtime representation
+
     @Override
     public Object parseValue(Object input) {
       return input;
     }
-    // take AST written words graphql.language.Value As input and converted to Java Runtime representation
+
     @Override
     public Object parseLiteral(Object input) {
       if (input instanceof BooleanValue) {
