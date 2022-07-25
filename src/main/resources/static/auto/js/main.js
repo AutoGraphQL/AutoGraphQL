@@ -423,11 +423,107 @@
 
 // APIJSON <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-  var REQUEST_TYPE_PARAM = 'PARAM'  // GET parameter
+
+  function getRequestFromURL(url_, tryParse) {
+    var url = url_ || window.location.search;
+
+    var index = url == null ? -1 : url.indexOf("?")
+    if(index < 0) { //判断是否有参数
+      return null;
+    }
+
+    var theRequest = null;
+    var str = url.substring(index + 1);  //从第一个字符开始 因为第0个是?号 获取所有除问号的所有符串
+    var arr = str.split("&");  //截除“&”生成一个数组
+
+    var len = arr == null ? 0 : arr.length;
+    for(var i = 0; i < len; i++) {
+      var part = arr[i];
+      var ind = part == null ? -1 : part.indexOf("=");
+      if (ind <= 0) {
+        continue
+      }
+
+      if (theRequest == null) {
+        theRequest = {};
+      }
+
+      var v = decodeURIComponent(part.substring(ind+1));
+      if (tryParse == true) {
+        try {
+          v = JSON.parse(v)
+        }
+        catch (e) {
+        }
+      }
+
+      theRequest[part.substring(0, ind)] = v;
+    }
+
+    return theRequest;
+  }
+
+
+  function markdownToHTML(md, isRequest) {
+    if (editormd == null) {
+      return;
+    }
+
+    if (isRequest) {
+      vRequestMarkdown.innerHTML = '';
+    }
+    else {
+      vMarkdown.innerHTML = '';
+    }
+    editormd.markdownToHTML(isRequest ? 'vRequestMarkdown' : "vMarkdown", {
+      markdown        : md ,//+ "\r\n" + $("#append-test").text(),
+      //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+      htmlDecode      : "style,script,iframe",  // you can filter tags decode
+      //toc             : false,
+      tocm            : true,    // Using [TOCM]
+      //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+      //gfm             : false,
+      tocDropdown     : true,
+      // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+      taskList        : true,
+      tex             : true,  // 默认不解析
+      flowChart       : true,  // 默认不解析
+      sequenceDiagram : true,  // 默认不解析
+    });
+  }
+
+
+
+  var PLATFORM_POSTMAN = 'POSTMAN'
+  var PLATFORM_SWAGGER = 'SWAGGER'
+  var PLATFORM_YAPI = 'YAPI'
+  var PLATFORM_RAP = 'RAP'
+
+  var REQUEST_TYPE_PARAM = 'PARAM'  // GET ?a=1&b=c&key=value
   var REQUEST_TYPE_FORM = 'FORM'  // POST x-www-form-urlencoded
   var REQUEST_TYPE_DATA = 'DATA'  // POST form-data
   var REQUEST_TYPE_JSON = 'JSON'  // POST application/json
   var REQUEST_TYPE_GQL = 'GQL'  // POST application/json
+  var REQUEST_TYPE_GRPC = 'GRPC'  // POST application/json
+
+
+  var CONTENT_TYPE_MAP = {
+    // 'PARAM': 'plain/text',
+    'FORM': 'x-www-form-urlencoded',
+    'DATA': 'form-data',
+    'JSON': 'application/json',
+    'GRPC': 'application/json',
+  }
+  var CONTENT_VALUE_TYPE_MAP = {
+    'plain/text': 'JSON',
+    'x-www-form-urlencoded': 'FORM',
+    'form-data': 'DATA',
+    'application/json': 'JSON'
+  }
+
+  var IGNORE_HEADERS = ['status code', 'remote address', 'referrer policy', 'connection', 'content-length'
+    , 'content-type', 'date', 'keep-alive', 'proxy-connection', 'set-cookie', 'vary', 'accept', 'cache-control', 'dnt'
+    , 'host', 'origin', 'pragma', 'referer', 'user-agent']
 
   var RANDOM_DB = 'RANDOM_DB'
   var RANDOM_DB_IN = 'RANDOM_DB_IN'
@@ -573,6 +669,9 @@
       locals: [],
       testCases: [],
       randoms: [],
+      randomSubs: [],
+      account: '13000082001',
+      password: '123456',
       accounts: [
         {
           'isLoggedIn': false,
@@ -594,20 +693,27 @@
         }
       ],
       currentAccountIndex: 0,
+      currentDocIndex: -1,
+      currentRandomIndex: -1,
+      currentRandomSubIndex: -1,
       tests: { '-1':{}, '0':{}, '1':{}, '2': {} },
       crossProcess: 'Cross: Off',
       testProcess: 'ML: Off',
       randomTestTitle: null,
       testRandomProcess: '',
       compareColor: '#0000',
+      isRandomTest: false,
       isDelayShow: false,
       isSaveShow: false,
       isExportShow: false,
+      isExportCheckShow: false,
       isExportRandom: false,
       isTestCaseShow: false,
       isHeaderShow: false,
-      isRandomShow: true,  //默认展示
+      isRandomShow: true,  // 默认展示
       isRandomListShow: false,
+      isRandomSubListShow: false,
+      isRandomEditable: false,
       isLoginShow: false,
       isConfigShow: false,
       isDeleteShow: false,
@@ -621,6 +727,9 @@
       isCrossEnabled: false,
       isMLEnabled: false,
       isDelegateEnabled: false,
+      isPreviewEnabled: false,
+      isEncodeEnabled: true,
+      isEditResponse: false,
       isLocalShow: false,
       uploadTotal: 0,
       uploadDoneCount: 0,
@@ -645,9 +754,9 @@
       type: REQUEST_TYPE_GQL,
       types: [ REQUEST_TYPE_GQL, REQUEST_TYPE_JSON ],  //默认展示
       host: '',
-      database: 'MYSQL',// 'POSTGRESQL',
-      schema: 'sys',
-      server: 'http://apijson.org:9090',  //apijson.org:8000
+      database: 'MYSQL', // 查文档必须，除非后端提供默认配置接口  // 用后端默认的，避免用户总是没有配置就问为什么没有生成文档和注释  'MYSQL',// 'POSTGRESQL',
+      schema: 'sys',  // 查文档必须，除非后端提供默认配置接口  // 用后端默认的，避免用户总是没有配置就问为什么没有生成文档和注释   'sys',
+      server: 'http://apijson.cn:9090',  // Chrome 90+ 跨域问题非常难搞，开发模式启动都不行了 'http://apijson.org:9090',  //apijson.cn
       // server: 'http://47.74.39.68:9090',  // apijson.org
       swagger: 'http://apijson.cn:8080/v2/api-docs',  //apijson.org:8000
       language: 'Java',
@@ -658,13 +767,19 @@
       testCasePage: 0,
       testCaseCount: 50,
       testCaseSearch: '',
+      randomPage: 0,
+      randomCount: 50,
+      randomSearch: '',
+      randomSubPage: 0,
+      randomSubCount: 50,
+      randomSubSearch: '',
       indent: '  '
     },
     methods: {
 
       // 全部展开
       expandAll: function () {
-        if (App.view != 'code') {
+        if (this.view != 'code') {
           alert('Get JSON Response first!')
           return
         }
@@ -674,12 +789,12 @@
         $('.expand-view').show()
         $('.fold-view').hide()
 
-        App.isExpand = true;
+        this.isExpand = true;
       },
 
       // 全部折叠
       collapseAll: function () {
-        if (App.view != 'code') {
+        if (this.view != 'code') {
           alert('Get JSON Response first!')
           return
         }
@@ -689,7 +804,7 @@
         $('.expand-view').hide()
         $('.fold-view').show()
 
-        App.isExpand = false;
+        this.isExpand = false;
       },
 
       // diff
@@ -1979,7 +2094,7 @@
                 var isGraphQL = App.isGraphQL()
 
                 if (App.isSuccess(data, isAPIJSON, isGraphQL)) {
-                  var user = (isAPIJSON ? data.user : data.data) || {}
+                  var user = (isAPIJSON ? (data.user || data.User) : data.data) || {}
                   if (isGraphQL) {
                     user = user.loginByPassword
                   }
@@ -2220,49 +2335,50 @@
         cache[key] = value
         localStorage.setItem('APIAuto:' + url, JSON.stringify(cache))
       },
-      getCache: function (url, key) {
+      getCache: function (url, key, defaultValue) {
         var cache = localStorage.getItem('APIAuto:' + url)
         try {
           cache = JSON.parse(cache)
         } catch(e) {
-          App.log('login  App.send >> try { cache = JSON.parse(cache) } catch(e) {\n' + e.message)
+          this.log('login  this.send >> try { cache = JSON.parse(cache) } catch(e) {\n' + e.message)
         }
         cache = cache || {}
-        return key == null ? cache : cache[key]
+        var val = key == null ? cache : cache[key]
+        return val == null && defaultValue != null ? defaultValue : val
       },
 
       /**登录确认
        */
       confirm: function () {
-        switch (App.loginType) {
+        switch (this.loginType) {
           case 'login':
-            App.login(App.isAdminOperation)
+            this.login(this.isAdminOperation)
             break
           case 'register':
-            App.register(App.isAdminOperation)
+            this.register(this.isAdminOperation)
             break
           case 'forget':
-            App.resetPassword(App.isAdminOperation)
+            this.resetPassword(this.isAdminOperation)
             break
         }
       },
 
-      showLogin(show, isAdmin) {
-        App.isLoginShow = show
-        App.isAdminOperation = isAdmin
+      showLogin: function (show, isAdmin) {
+        this.isLoginShow = show
+        this.isAdminOperation = isAdmin
 
         if (show != true) {
           return
         }
 
-        var user = isAdmin ? App.User : null //add account   App.accounts[App.currentAccountIndex]
+        var user = isAdmin ? this.User : null  // add account   this.accounts[this.currentAccountIndex]
 
         // alert("showLogin  isAdmin = " + isAdmin + "; user = \n" + JSON.stringify(user, null, '    '))
 
-        if (user == null) {
+        if (user == null || StringUtil.isEmpty(user.phone, true)) {
           user = {
-            phone: 13000082001,
-            password: 123456
+            phone: '13000082001',
+            password: '123456'
           }
         }
 
@@ -2276,10 +2392,10 @@
       },
 
       getCurrentAccount: function() {
-        return App.accounts == null ? null : App.accounts[App.currentAccountIndex]
+        return this.accounts == null ? null : this.accounts[this.currentAccountIndex]
       },
       getCurrentAccountId: function() {
-        var a = App.getCurrentAccount()
+        var a = this.getCurrentAccount()
         return a != null && a.isLoggedIn ? a.id : null
       },
 
@@ -2314,7 +2430,7 @@
               alert('登录失败，请检查网络后重试。\n' + rpObj.msg + '\n详细信息可在浏览器控制台查看。')
             }
             else {
-              var user = rpObj.user || {}
+              var user = rpObj.user || rpObj.User || {}
 
               if (user.id > 0) {
                 user.remember = rpObj.remember
@@ -2372,7 +2488,7 @@
             //由login按钮触发，不能通过callback回调来实现以下功能
             var data = res.data || {}
             if (data.code == CODE_SUCCESS) {
-              var user = data.user || {}
+              var user = data.user || data.User || {}
               App.accounts.push({
                 isLoggedIn: true,
                 id: user.id,
@@ -2468,8 +2584,11 @@
         var req = {}
 
         if (isAdminOperation) {
-          // alert('logout  isAdminOperation  this.saveCache(App.server, User, {})')
-          this.saveCache(App.server, 'User', {})
+          // alert('logout  isAdminOperation  this.saveCache(this.server, User, {})')
+          this.delegateId = null
+          this.saveCache(this.server, 'delegateId', null)
+
+          this.saveCache(this.server, 'User', {})
         }
 
         // alert('logout  isAdminOperation = ' + isAdminOperation + '; url = ' + url)
@@ -2531,7 +2650,9 @@
         this.User.id = 0
         this.Privacy = {}
         this.remotes = []
-        this.saveCache(App.server, 'User', App.User) //应该用lastBaseUrl,baseUrl应随watch输入变化重新获取
+        // 导致刚登录成功就马上退出 this.delegateId = null
+        this.saveCache(this.server, 'User', this.User) //应该用lastBaseUrl,baseUrl应随watch输入变化重新获取
+        // this.saveCache(this.server, 'delegateId', this.delegateId) //应该用lastBaseUrl,baseUrl应随watch输入变化重新获取
       },
 
       /**计时回调
@@ -2821,11 +2942,38 @@
       //请求
       request: function (isAdminOperation, type, url, req, header, callback) {
         type = type || REQUEST_TYPE_JSON
+        url = StringUtil.noBlank(url)
+
+        var isDelegate = (isAdminOperation == false && this.isDelegateEnabled) || (isAdminOperation && url.indexOf('://apijson.cn:9090') > 0)
+
+        if (header != null && header.Cookie != null) {
+          if (isDelegate) {
+            header['Set-Cookie'] = header.Cookie
+            delete header.Cookie
+          }
+          else {
+            document.cookie = header.Cookie
+          }
+        }
+
+        if (isDelegate && this.delegateId != null && (header == null || header['Apijson-Delegate-Id'] == null)) {
+          if (header == null) {
+            header = {};
+          }
+          header['Apijson-Delegate-Id'] = this.delegateId
+        }
 
         // axios.defaults.withcredentials = true
         axios({
           method: (type == REQUEST_TYPE_PARAM ? 'get' : 'post'),
-          url: (isAdminOperation == false && this.isDelegateEnabled ? (this.server + '/delegate?$_delegate_url=') : '' ) + StringUtil.noBlank(url),
+          url: (isDelegate
+              ? (
+                this.server + '/delegate?' + (type == REQUEST_TYPE_GRPC ? '$_type=GRPC&' : '')
+                + (StringUtil.isEmpty(this.delegateId, true) ? '' : '$_delegate_id=' + this.delegateId + '&') + '$_delegate_url=' + encodeURIComponent(url)
+              ) : (
+                this.isEncodeEnabled ? encodeURI(url) : url
+              )
+          ),
           params: (type == REQUEST_TYPE_PARAM || type == REQUEST_TYPE_FORM ? req : null),
           data: (type == REQUEST_TYPE_GQL || type == REQUEST_TYPE_JSON ? req : (type == REQUEST_TYPE_DATA ? toFormData(req) : null)),
           headers: header,  //Accept-Encoding（HTTP Header 大小写不敏感，SpringBoot 接收后自动转小写）可能导致 Response 乱码
@@ -2833,6 +2981,16 @@
         })
           .then(function (res) {
             res = res || {}
+
+            if (isDelegate) {
+              var hs = res.headers || {}
+              var delegateId = hs['Apijson-Delegate-Id'] || hs['apijson-delegate-id']
+              if (delegateId != null && delegateId != App.delegateId) {
+                App.delegateId = delegateId
+                App.saveCache(App.server, 'delegateId', delegateId)
+              }
+            }
+
 	    //any one of then callback throw error will cause it calls then(null)
             // if ((res.config || {}).method == 'options') {
             //   return
@@ -2864,6 +3022,10 @@
           })
           .catch(function (err) {
             log('send >> error:\n' + err)
+            if (isAdminOperation) {
+              App.delegateId = null
+            }
+
             if (callback != null) {
               callback(url, {}, err)
               return
@@ -3456,36 +3618,36 @@
               continue;
             }
 
-            if (k == 'DISALLOW') {
-              nk = '不能传';
-            }
-            else if (k == 'NECESSARY') {
-              nk = '必须传';
-            }
-            else if (k == 'UNIQUE') {
-              nk = '不重复';
-            }
-            else if (k == 'VERIFY') {
-              nk = '满足条件';
-            }
-            else if (k == 'TYPE') {
-              nk = '满足类型';
-            }
-            else {
-              nk = null;
-            }
+//            if (k == 'REFUSE' || k == 'DISALLOW') {
+//              nk = '不能传';
+//            }
+//            else if (k == 'MUST' || k == 'NECESSARY') {
+//              nk = '必须传';
+//            }
+//            else if (k == 'UNIQUE') {
+//              nk = '不重复';
+//            }
+//            else if (k == 'VERIFY') {
+//              nk = '满足条件';
+//            }
+//            else if (k == 'TYPE') {
+//              nk = '满足类型';
+//            }
+//            else {
+//              nk = null;
+//            }
 
             if (v instanceof Object) {
               v = this.getStructure(v);
             }
-            else if (v === '!') {
-              v = '非必须传的字段';
-            }
-
-            if (nk != null) {
-              obj[nk] = v;
-              delete obj[k];
-            }
+//            else if (v === '!') {
+//              v = '非必须传的字段';
+//            }
+//
+//            if (nk != null) {
+//              obj[nk] = v;
+//              delete obj[k];
+//            }
           }
         }
 
@@ -3562,7 +3724,7 @@
         else {
           var baseUrl = StringUtil.trim(App.getBaseUrl())
           if (baseUrl == '') {
-            alert('请先输入有效的URL！')
+            alert('Input correct URL!')
             return
           }
           //开放测试
@@ -3580,10 +3742,10 @@
           doneCount = 0
 
           if (allCount <= 0) {
-            alert('请先获取随机配置\n点击[查看列表]按钮')
+            alert('Get order & random config first!\nClick [Show parent list]')
             return
           }
-          App.testRandomProcess = '正在测试: ' + 0 + '/' + allCount
+          App.testRandomProcess = 'Testing: ' + 0 + '/' + allCount
 
           var json = this.getRequest(vInput.value, null, App.type == REQUEST_TYPE_GQL ? StringUtil.get(vGraphQLInput.value) : null) || {}
           var url = this.getUrl()
@@ -3608,7 +3770,7 @@
             var callback = function (url, res, err) {
 
               doneCount ++
-              App.testRandomProcess = doneCount >= allCount ? '' : ('正在测试: ' + doneCount + '/' + allCount)
+              App.testRandomProcess = doneCount >= allCount ? '' : ('Testing: ' + doneCount + '/' + allCount)
               try {
                 App.onResponse(url, res, err)
                 App.log('testRandom  App.testRandomSingle >> res.data = ' + JSON.stringify(res.data, null, '  '))
@@ -3853,16 +4015,16 @@
         }
         if (isCrossEnabled) {
           var isCrossDone = accountIndex >= accounts.length
-          this.crossProcess = isCrossDone ? (isCrossEnabled ? '交叉账号:已开启' : '交叉账号:已关闭') : ('交叉账号: ' + (accountIndex + 1) + '/' + accounts.length)
+          this.crossProcess = isCrossDone ? (isCrossEnabled ? 'Cross: On' : 'Cross: Off') : ('Cross: ' + (accountIndex + 1) + '/' + accounts.length)
           if (isCrossDone) {
-            alert('已完成账号交叉测试: 退出登录状态 和 每个账号登录状态')
+            alert('Completed cross account test with: Logout and login for each account')
             return
           }
         }
 
         var baseUrl = StringUtil.trim(App.getBaseUrl())
         if (baseUrl == '') {
-          alert('请先输入有效的URL！')
+          alert('Input correct URL!')
           return
         }
         //开放测试
@@ -3880,7 +4042,7 @@
         doneCount = 0
 
         if (allCount <= 0) {
-          alert('请先获取测试用例文档\n点击[查看共享]图标按钮')
+          alert('Get test cases first\nClick [Show test cases] icon')
           return
         }
 
@@ -3905,7 +4067,7 @@
       },
 
       startTest: function (list, allCount, isRandom, accountIndex) {
-        this.testProcess = '正在测试: ' + 0 + '/' + allCount
+        this.testProcess = 'Testing: ' + 0 + '/' + allCount
 
         var baseUrl = App.getBaseUrl()
         for (var i = 0; i < allCount; i ++) {
@@ -3966,7 +4128,7 @@
         if (err != null) {
           tr.compare = {
             code: JSONResponse.COMPARE_ERROR, //请求出错
-            msg: '请求出错！',
+            msg: 'Request error!',
             path: err.message + '\n\n'
           }
         }
@@ -3980,41 +4142,45 @@
       },
 
       onTestResponse: function(allCount, index, it, d, r, tr, response, cmp, isRandom, accountIndex, justRecoverTest) {
+        tr = tr || {}
         tr.compare = cmp;
 
+        it = it || {}
         it.compareType = tr.compare.code;
         it.hintMessage = tr.compare.path + '  ' + tr.compare.msg;
         switch (it.compareType) {
           case JSONResponse.COMPARE_ERROR:
             it.compareColor = 'red'
-            it.compareMessage = '请求出错！'
+            it.compareMessage = 'Request error!'
             break;
           case JSONResponse.COMPARE_NO_STANDARD:
-            it.compareColor = 'white'
-            it.compareMessage = '确认正确后点击[对的，纠正]'
+            it.compareColor = 'green'
+            it.compareMessage = 'Click [Right] if no problem'
             break;
           case JSONResponse.COMPARE_KEY_MORE:
             it.compareColor = 'green'
-            it.compareMessage = '新增字段/新增值'
+            it.compareMessage = 'New key/New value'
             break;
           case JSONResponse.COMPARE_VALUE_CHANGE:
             it.compareColor = 'blue'
-            it.compareMessage = '值改变'
+            it.compareMessage = 'Value changed'
             break;
           case JSONResponse.COMPARE_KEY_LESS:
-            it.compareColor = 'yellow'
-            it.compareMessage = '缺少字段/整数变小数'
+            it.compareColor = 'orange'
+            it.compareMessage = 'Missing key/Int to Float'
             break;
           case JSONResponse.COMPARE_TYPE_CHANGE:
             it.compareColor = 'red'
-            it.compareMessage = 'code/值类型 改变'
+            it.compareMessage = 'Code/Exception/Type changed'
             break;
           default:
             it.compareColor = 'white'
-            it.compareMessage = '查看结果'
+            it.compareMessage = 'Show result'
             break;
         }
+
         if (isRandom) {
+          r = r || {}
           it.Random = r
         }
         else {
@@ -4029,7 +4195,7 @@
         }
 
         doneCount ++
-        this.testProcess = doneCount >= allCount ? (App.isMLEnabled ? '机器学习:已开启' : '机器学习:已关闭') : '正在测试: ' + doneCount + '/' + allCount
+        this.testProcess = doneCount >= allCount ? (App.isMLEnabled ? 'ML: On' : 'ML: Off') : 'Testing: ' + doneCount + '/' + allCount
 
         this.log('doneCount = ' + doneCount + '; d.name = ' + (isRandom ? r.name : d.name) + '; tr.compareType = ' + tr.compareType)
 
@@ -4094,7 +4260,7 @@
         var testRecord = item.TestRecord = item.TestRecord || {}
 
         saveTextAs(
-          '# APIJSON自动化回归测试-前\n主页: https://github.com/APIJSON/APIJSON'
+          '# APIJSON自动化回归测试-前\n主页: https://github.com/Tencent/APIJSON'
           + '\n\n接口名称: \n' + (document.version > 0 ? 'V' + document.version : 'V*') + ' ' + document.name
           + '\n返回结果: \n' + JSON.stringify(JSON.parse(testRecord.response || '{}'), null, '  ')
           , '测试：' + document.name + '-前.txt'
@@ -4109,7 +4275,7 @@
         setTimeout(function () {
           var tests = App.tests[String(App.currentAccountIndex)] || {}
           saveTextAs(
-            '# APIJSON自动化回归测试-后\n主页: https://github.com/APIJSON/APIJSON'
+            '# APIJSON自动化回归测试-后\n主页: https://github.com/Tencent/APIJSON'
             + '\n\n接口名称: \n' + (document.version > 0 ? 'V' + document.version : 'V*') + ' ' + document.name
             + '\n返回结果: \n' + JSON.stringify(tests[document.id][isRandom ? random.id : 0] || {}, null, '  ')
             , '测试：' + document.name + '-后.txt'
@@ -4119,7 +4285,7 @@
           if (StringUtil.isEmpty(testRecord.standard, true) == false) {
             setTimeout(function () {
               saveTextAs(
-                '# APIJSON自动化回归测试-标准\n主页: https://github.com/APIJSON/APIJSON'
+                '# APIJSON自动化回归测试-标准\n主页: https://github.com/Tencent/APIJSON'
                 + '\n\n接口名称: \n' + (document.version > 0 ? 'V' + document.version : 'V*') + ' ' + document.name
                 + '\n测试结果: \n' + JSON.stringify(testRecord.compare || '{}', null, '  ')
                 + '\n测试标准: \n' + JSON.stringify(JSON.parse(testRecord.standard || '{}'), null, '  ')
@@ -4378,20 +4544,25 @@
       }
 
       try { //可能URL_BASE是const类型，不允许改，这里是初始化，不能出错
-        this.User = this.getCache(this.server, 'User') || {}
-        this.isCrossEnabled = this.getCache(this.server, 'isCrossEnabled') || this.isCrossEnabled
-        this.isMLEnabled = this.getCache(this.server, 'isMLEnabled') || this.isMLEnabled
-        this.crossProcess = this.isCrossEnabled ? '交叉账号:已开启' : '交叉账号:已关闭'
-        this.testProcess = this.isMLEnabled ? '机器学习:已开启' : '机器学习:已关闭'
+        this.User = this.getCache(this.server, 'User', {})
+        this.isCrossEnabled = this.getCache(this.server, 'isCrossEnabled', this.isCrossEnabled)
+        this.isMLEnabled = this.getCache(this.server, 'isMLEnabled', this.isMLEnabled)
+        this.crossProcess = this.isCrossEnabled ? 'Cross: On' : 'Cross: Off'
+        this.testProcess = this.isMLEnabled ? 'ML: On' : 'ML: Off'
         // this.host = this.getBaseUrl()
-        this.page = this.getCache(this.server, 'page') || this.page
-        this.count = this.getCache(this.server, 'count') || this.count
-        this.testCasePage = this.getCache(this.server, 'testCasePage') || this.testCasePage
-        this.testCaseCount = this.getCache(this.server, 'testCaseCount') || this.testCaseCount
+        this.page = this.getCache(this.server, 'page', this.page)
+        this.count = this.getCache(this.server, 'count', this.count)
+        this.testCasePage = this.getCache(this.server, 'testCasePage', this.testCasePage)
+        this.testCaseCount = this.getCache(this.server, 'testCaseCount', this.testCaseCount)
+        this.randomPage = this.getCache(this.server, 'randomPage', this.randomPage)
+        this.randomCount = this.getCache(this.server, 'randomCount', this.randomCount)
+        this.randomSubPage = this.getCache(this.server, 'randomSubPage', this.randomSubPage)
+        this.randomSubCount = this.getCache(this.server, 'randomSubCount', this.randomSubCount)
+        this.delegateId = this.getCache(this.server, 'delegateId', this.delegateId)
 
       } catch (e) {
         console.log('created  try { ' +
-          '\nthis.User = this.getCache(this.server, User) || {}' +
+          '\nthis.User = this.getCache(this.server, User, {})' +
           '\n} catch (e) {\n' + e.message)
       }
 

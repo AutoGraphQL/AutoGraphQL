@@ -1,5 +1,6 @@
 package graphql.examples.springboot;
 
+import apijson.demo.server.Controller;
 import apijson.demo.server.DemoParser;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,8 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-public class GraphQLController {
-
+public class GraphQLController extends Controller {
 
     private final GraphQL graphql;
     private final ObjectMapper objectMapper;

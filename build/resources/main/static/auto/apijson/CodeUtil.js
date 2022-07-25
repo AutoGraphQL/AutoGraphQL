@@ -3986,7 +3986,7 @@ var CodeUtil = {
    */
   getMaxLength: function (columnType) {
     var index = columnType == null ? -1 : columnType.indexOf('(');
-    return index < 0 ? '不限' : columnType.substring(index + 1, columnType.length - (columnType.endsWith(')') ? 1 : 0));
+    return index < 0 ? '-' : columnType.substring(index + 1, columnType.length - (columnType.endsWith(')') ? 1 : 0));
   },
 
 

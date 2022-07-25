@@ -136,14 +136,15 @@
       <!--<use xlink:href="svg/icon.svg#share"></use>-->
       <!--</svg>-->
 
-      <a style="display: flex;flex-grow: 1;font-size: medium;color: black" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="showTestCase(true, ! isLocalShow)">测试用例:{{ (isLocalShow ? '本地历史(' : '远程共享(') + (testCases == null ? 0 : testCases.length) + ')' }}</a>
+
+      <a style="display: flex;flex-grow: 1;font-size: medium;color: black" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="showTestCase(true, ! isLocalShow)">Test case:{{ (isLocalShow ? 'History(' : 'Remote(') + (testCases == null ? 0 : testCases.length) + ')' }}</a>
 
       <a v-show="! isLocalShow" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="enableCross(! isCrossEnabled)">{{ crossProcess }}</a>
       <a v-show="! isLocalShow" class="hint--top save-tool" data-hint="Click to change" href="javascript:void(0)" @click="enableML(! isMLEnabled)">{{ testProcess }}</a>
       <a v-show="! isLocalShow" class="hint--top @cli-tool" data-hint="Regression test" href="javascript:void(0)" @click="test(false, isCrossEnabled ? -1 : currentAccountIndex)">
         <img class="icon" src="img/refresh.png"/>
       </a>
-      <a v-show="isLocalShow" class="hint--top @cli-tool" data-hint="清空" href="javascript:void(0)" @click="clearLocal()">
+      <a v-show="isLocalShow" class="hint--top @cli-tool" data-hint="Clear" href="javascript:void(0)" @click="clearLocal()">
         <svg class="icon" >
           <use xlink:href="svg/icon.svg#trash"></use>
         </svg>
@@ -165,12 +166,12 @@
           <button v-show="types != null && types.length > 1" style="width: 48px;margin-right: 6px;padding: 0px;position: relative" id="vDocType" @click="restoreRemoteAndTest(item)">{{ getTypeName(item.Document.type) }}</button>
           <a class="hint--rounded hint--no-animate" ref="testCaseTexts" @mouseover="setRequestHint(index, item)" href="javascript:void(0)" @click="restoreRemote(item)" > {{(item.Document.version > 0 ? 'V' + item.Document.version : 'V*') + ' ' + item.Document.name  + '    ' + item.Document.url}}</a>
           <div :style="{ background: item.compareColor }" v-show="item.compareType != null" style="position: absolute;top: 8px;right: 36px;display: inline-block;">
-            <button class="hint--left" ref="testResultButtons" @mouseover="setTestHint(index, item)" v-show="item.compareType != null" @click="handleTest(false, index, item)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-前' : '-后') }}</button>
+            <button class="hint--left" ref="testResultButtons" @mouseover="setTestHint(index, item)" v-show="item.compareType != null" @click="handleTest(false, index, item)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-Old' : '-New') }}</button>
             <svg class="icon" style="position: relative;margin-left: 10px" @click="downloadTest(index, item)">
               <use xlink:href="svg/icon.svg#export-txt"></use>
             </svg>
-            <button v-show="(item.compareType != -2 && item.compareType != 0) || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item)">{{ item.showType == 'before' ? '错的，撤回' : '对的，纠正' }}</button>
-            <button v-show="(item.compareType == -2 || item.compareType == 0) && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>对的，纠正</button>
+            <button v-show="(item.compareType != -2 && item.compareType != 0) || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item)">{{ item.showType == 'before' ? 'Wrong' : 'Right' }}</button>
+            <button v-show="(item.compareType == -2 || item.compareType == 0) && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>Right</button>
           </div>
           <svg v-show="isLocalShow || (item.Document != null && item.Document.userId == User.id)" class="icon" style="margin-right: 8px" @click="remove(item, index, true)">
             <use xlink:href="svg/icon.svg#trash"></use>
@@ -219,9 +220,9 @@ query ($arg: Any) {
                     Show parent list
                 </a>
             </a>
-                <a v-show="(currentRemoteItem || {}).Document != null" class="hint--top @cli-tool" data-hint="添加" style="font-size:xx-large; margin-bottom: 2px; color: black;"
+                <a v-show="(currentRemoteItem || {}).Document != null" class="hint--top @cli-tool" data-hint="Add" style="font-size:xx-large; margin-bottom: 2px; color: black;"
                    href="javascript:void(0)" @click="if(isRandomListShow) { randomTestTitle = null; isRandomListShow = false;  } else { showExport(true, true, true) }"> + </a>
-                <a v-show="false" href="javascript:void(0)" style="font-size: small;" class="hint--top"  data-hint="共享"  @click="showExport(true, true)">
+                <a v-show="false" href="javascript:void(0)" style="font-size: small;" class="hint--top"  data-hint="Upload"  @click="showExport(true, true)">
                     <svg class="icon">
                         <use xlink:href="svg/icon.svg#share"></use>
                     </svg>
@@ -237,14 +238,15 @@ query ($arg: Any) {
           </div>
             <ul v-show="isRandomListShow" class="historys" style="width: 100%;height: 100%;overflow: hidden;overflow-y: scroll;padding-bottom: 50px">
                 <li style="width: 100%" v-for="(item, index) in randoms" >
-                    <a class="hint--rounded hint--no-animate" ref="randomTexts" @mouseover="setRequestHint(index, item, true)" href="javascript:void(0)" @click="restoreRandom(item)" > {{ (item.Random.count || 1) + '次 - ' + item.Random.name }}</a>
+                    <a class="hint--rounded hint--no-animate" ref="randomTexts" @mouseover="setRequestHint(index, item, true)" href="javascript:void(0)" @click="restoreRandom(item)" > {{ (item.Random.count || 1) + ' - ' + item.Random.name }}</a>
                     <div :style="{ background: item.compareColor }" v-show="item.compareType != null" style="position: absolute;top: 8px;right: 36px;display: inline-block;">
-                        <button class="hint--left" ref="testRandomResultButtons" @mouseover="setTestHint(index, item, true)" v-show="item.compareType != null" @click="handleTest(false, index, item, true)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-Before' : '-After') }}</button>
+
+                        <button class="hint--left" ref="testRandomResultButtons" @mouseover="setTestHint(index, item, true)" v-show="item.compareType != null" @click="handleTest(false, index, item, true)" style="position: relative;">{{ item.compareMessage + (item.showType == 'before' ? '-Old' : '-New') }}</button>
                         <svg class="icon" style="position: relative;margin-left: 10px" @click="downloadTest(index, item, true)">
                             <use xlink:href="svg/icon.svg#export-txt"></use>
                         </svg>
-                        <button v-show="item.compareType != 0 || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item, true)">{{ item.showType == 'before' ? '错的，撤回' : '对的，纠正' }}</button>
-                        <button v-show="item.compareType == 0 && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>对的，纠正</button>
+                        <button v-show="item.compareType != 0 || (item.showType == 'before' && item.TestRecord != null)" @click="handleTest(true, index, item, true)">{{ item.showType == 'before' ? 'Wrong' : 'Right' }}</button>
+                        <button v-show="item.compareType == 0 && item.showType != 'before'" style="color: white;background: white;border-color: white;" disabled>Right</button>
                     </div>
                     <svg v-show="item.Random != null && item.Random.userId == User.id" class="icon" style="margin-right: 8px" @click="remove(item, index, true, true)">
                         <use xlink:href="svg/icon.svg#trash"></use>
