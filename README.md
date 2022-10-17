@@ -3,6 +3,8 @@ Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) a
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them. <br />
 <br />
 
+![image](https://user-images.githubusercontent.com/5738175/172935532-aba3c5a4-0828-45f5-83d9-2735657002ce.png)
+
 #### Song Firework-Katy Parry(Modified)
 Do you ever feel like a backend slave <br />
 Repeating CRUD, wanting to make a change? <br />
