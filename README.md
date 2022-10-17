@@ -1,8 +1,35 @@
 # AutoGraphQL
 Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) and code free. <br />
-<br />
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them. <br />
 <br />
+
+#### Song Firework-Katy Parry(Modified)
+Do you ever feel like a backend slave <br />
+Repeating CRUD, wanting to make a change? <br />
+Do you ever feel, APIs' so paper thin <br />
+Like a house of cards, one blow from cavin' in? <br />
+Do you ever feel they always complain? <br />
+Urging doc and feedback bugs, even ask your refactoring <br />
+Do you know that there's still a chance for you? <br />
+'Cause there's a powerful tool <br />
+You just gotta depend and cofig <br />
+And let it init <br />
+Just start APIs <br />
+They are so easy to try <br />
+'Cause baby, you're a firework <br />
+Come on, show 'em what you're worth <br />
+Make 'em go, "Oh, oh, oh" <br />
+As you give 'em an A-T-M <br />
+Baby, you're a firework <br />
+Come on, let let them serve themselves <br />
+Make 'em go, "Oh, oh, oh" <br />
+You're gonna leave 'em all in awe, awe, awe. <br />
+
+<br/>
+
+**Tired with endless arguments about HTTP API dev or use?**  <br />
+**Use AutoGraphQL-the framework for providing infinity codeless CRUD APIs that fit almost all your needs.**  <br />
+**Unfold the Power(In Your Soul) with ⭐Star & Clone.**
 
 ### Examples
 
