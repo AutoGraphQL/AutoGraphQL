@@ -3,7 +3,7 @@ Automatically provide CRUD functions for [GraphQL](https://github.com/graphql) a
 It supplies some automatic Schemas, Types and resolvers so that you don't need to write them. <br />
 <br />
 
-![image](https://user-images.githubusercontent.com/5738175/172935532-aba3c5a4-0828-45f5-83d9-2735657002ce.png)
+![image](https://user-images.githubusercontent.com/5738175/196149282-9b2eb30b-17a1-4a4b-870c-ddf933613c2d.png)
 
 ![0F85206E116CCEE74DB68E5B9A3AEDAE](https://user-images.githubusercontent.com/5738175/196147933-d180eb9f-f5e9-41f9-b2b6-ec777d48065d.jpg)
 #### Song Firework-Katy Parry(Modified)
