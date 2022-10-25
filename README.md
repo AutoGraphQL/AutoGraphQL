@@ -44,9 +44,7 @@ Request:
     User: {
       id: 38710
     }
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
@@ -83,9 +81,7 @@ Request:
         "@column":"id,name"
       }
     }
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
@@ -130,9 +126,7 @@ Request:
     "User":{
       "id@":"Moment/userId"  //User.id = Moment.userId
     }
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
@@ -173,9 +167,7 @@ mutation {
        "content":"APIJSON,let interfaces and documents go to hell !"
     },
     "tag":"Moment"
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
@@ -203,9 +195,7 @@ mutation {
        "content":"APIJSON,let interfaces and documents go to hell !"
      },
      "tag":"Moment"
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
@@ -233,9 +223,7 @@ mutation {
        "id":120
      },
      "tag":"Moment"
-  }) {
-    data
-  }
+  })
 }
 ```
 Response:
